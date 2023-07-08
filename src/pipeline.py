@@ -133,7 +133,7 @@ class Pipeline(object):
             exp_check,
             exp_aggregate,
             exp_test,
-            value=10 ** 18
+            value=int(0.1 * (10 ** 18))
         )
         assert tx_receipt["status"] != 0, "CreateSession failed"
         return session_id
