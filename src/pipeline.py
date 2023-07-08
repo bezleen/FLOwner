@@ -1,8 +1,10 @@
+import os
 import time
 
 import pydash as py_
 import yaml
 import random
+import requests
 
 from utils.interact import SmartContractInteractor
 from bson.objectid import ObjectId
@@ -100,8 +102,12 @@ class Pipeline(object):
         return
 
     def __create_network(self):
-        global_model_id = self.encode_id(str(ObjectId()))
-        param_id = self.encode_id(str(ObjectId()))
+        global_model_p = "/Users/hienhuynhdang/Documents/UIT/kltn/FLOwner/storage/64a9c49810a8cd45568b11a7.pt"
+        param_id_p = "/Users/hienhuynhdang/Documents/UIT/kltn/FLOwner/storage/64a9c49810a8cd45568b11a8.pth"
+        self.__upload_file(global_model_p)
+        self.__upload_file(param_id_p)
+        global_model_id = self.encode_id(os.path.basename(global_model_p).split(".pt")[0])
+        param_id = self.encode_id(os.path.basename(param_id_p).split(".pth")[0])
         return global_model_id, param_id
 
     def __create_session(self, global_model_id, param_id):
@@ -139,3 +145,9 @@ class Pipeline(object):
         tx_receipt = self.smc.transact(self.fl_contract_abi, "submitIndexCandidateAggregator", ss_id, candidate_encode)
         time.sleep(5)
         return bool(int(tx_receipt['status']))
+
+    def __upload_file(self, path_):
+        url = "http://54.251.217.42:7020/v1/api/fl/upload-file"
+        files = {'file': open(path_, 'rb')}
+        response = requests.request("POST", url, files=files)
+        print(response.json())
